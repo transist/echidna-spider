@@ -8,8 +8,10 @@ module RedisModel
   end
 
   def key
-    @id ||= $redis.incr("#{scope_name}.id")
-    "#{scope_name}/#{@id}"
+    @key ||= begin
+               @id ||= $redis.incr("#{scope_name}.id")
+               "#{scope_name}/#{@id}"
+             end
   end
 
   def save
@@ -21,7 +23,27 @@ module RedisModel
     self.class.scope_name
   end
 
+  def ==(another)
+    key == (another.key)
+  end
+
+  def eql?(another)
+    self == another
+  end
+
   module ClassMethods
+    def all
+      $redis.smembers(scope_name).map do |key|
+        find(key)
+      end
+    end
+
+    def find(key)
+      instance = new($redis.hgetall(key))
+      instance.instance_variable_set(:@key, key)
+      instance
+    end
+
     def create(attributes)
       instance = new(attributes)
       instance.save

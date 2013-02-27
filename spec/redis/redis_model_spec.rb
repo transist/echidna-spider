@@ -9,6 +9,26 @@ describe RedisModel do
 
   let(:attributes) { {title: 'Title', body: 'Body'} }
   let(:post) { Post.new(attributes) }
+  let(:another_post) { Post.new(attributes) }
+
+  context 'finders' do
+    describe '.all' do
+      it 'should find and return all stored instances' do
+        post1 = Post.create(attributes)
+        post2 = Post.create(attributes)
+        posts = Post.all
+        expect(posts).to include(post1)
+        expect(posts).to include(post2)
+      end
+    end
+
+    describe '.find' do
+      it 'should load and return stored instance via given key' do
+        post = Post.create(attributes)
+        expect(Post.find(post.key)).to eq(post)
+      end
+    end
+  end
 
   describe '.new' do
     it 'should accept attributes hash' do
@@ -21,6 +41,11 @@ describe RedisModel do
       post = Post.create(attributes)
 
       expect(post).to be_a(Post)
+    end
+
+    it 'should save the model instance' do
+      Post.any_instance.should_receive(:save)
+      Post.create(attributes)
     end
   end
 
@@ -62,7 +87,7 @@ describe RedisModel do
       post.save
     end
 
-    it 'should save the model instance' do
+    it 'should store the model instance as hash with #key' do
       loaded_attrs = $redis.hgetall(post.key)
       expect(loaded_attrs).to eq(attributes)
     end
@@ -70,6 +95,20 @@ describe RedisModel do
     it 'should add model key to models set' do
       post_keys = $redis.smembers(:posts)
       expect(post_keys).to include(post.key)
+    end
+  end
+
+  context 'instance equality' do
+    it 'should treat two instances of same model class with same key as ==' do
+      post.stub(:key) { 'post/1' }
+      another_post.stub(:key) { 'post/1' }
+
+      expect(post).to eq(another_post)
+    end
+
+    it 'should delegate #eql? to #==' do
+      post.should_receive(:==).with(another_post)
+      post.eql?(another_post)
     end
   end
 end
