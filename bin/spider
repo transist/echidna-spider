@@ -27,6 +27,8 @@ Bundler.require(:default, ENV['ECHIDNA_SPIDER_ENV'].to_sym)
 end
 
 class Spider < Goliath::API
+  plugin SpiderSchedulerPlugin
+
   def response(env)
     SpiderAPI.call(env)
   end

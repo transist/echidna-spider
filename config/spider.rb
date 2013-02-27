@@ -6,3 +6,5 @@ $redis = EventMachine::Synchrony::ConnectionPool.new(size: 2) do
     )
   )
 end
+
+$logger = Syslog.open('spider', Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_LOCAL3)
