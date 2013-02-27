@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: git://github.com/rainux/tencent-weibo
-  revision: a48ec2c6e1b007cc47b5d89c4acdd957565838ba
+  revision: cb13f87e5b7380a362d5fa44078edc3f3c1b3553
   specs:
     tencent-weibo (0.0.1)
       oauth2 (~> 0.9.1)
