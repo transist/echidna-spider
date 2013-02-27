@@ -1,13 +1,15 @@
-ENV['ECHIDNA_SPIDER_ENV'] ||= 'test'
-ENV['ECHIDNA_REDIS_HOST'] ||= '127.0.0.1'
-ENV['ECHIDNA_REDIS_PORT'] ||= '6379'
-ENV['ECHIDNA_REDIS_NAMESPACE'] ||= 'e:t'
+ENV['ECHIDNA_SPIDER_ENV']       ||= 'test'
+ENV['ECHIDNA_REDIS_HOST']       ||= '127.0.0.1'
+ENV['ECHIDNA_REDIS_PORT']       ||= '6379'
+ENV['ECHIDNA_REDIS_NAMESPACE']  ||= 'e:t'
 
 require 'bundler'
 Bundler.require(:default, ENV['ECHIDNA_SPIDER_ENV'].to_sym)
 
-%w(config/initializers/*.rb lib/redis/**/*.rb lib/**/*.rb app/apis/*.rb).each do |dir|
-  Dir[dir].each {|file| require_relative File.join('..', file) }
+APP_ROOT = Pathname.new(File.expand_path('../..', __FILE__))
+
+%w(config/initializers/*.rb lib/redis/**/*.rb lib/**/*.rb app/**/*.rb).each do |pattern|
+  Dir[APP_ROOT.join(pattern)].each {|file| require_relative file }
 end
 
 $redis = Redis::Namespace.new(
