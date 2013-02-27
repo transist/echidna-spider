@@ -19,7 +19,12 @@ class SpiderAPI < Grape::API
 
       desc 'Callback for Tencent Weibo API to actually create the agent.'
       get :create do
-        weibo.auth_code.get_token(params[:code]).to_hash
+        begin
+          TencentAgent.create(weibo.auth_code.get_token(params[:code]).to_hash.symbolize_keys)
+          {success: true}
+        rescue => e
+          {success: false, error: e.message}
+        end
       end
     end
   end
