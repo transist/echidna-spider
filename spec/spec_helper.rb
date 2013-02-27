@@ -8,7 +8,7 @@ Bundler.require(:default, ENV['ECHIDNA_SPIDER_ENV'].to_sym)
 
 APP_ROOT = Pathname.new(File.expand_path('../..', __FILE__))
 
-%w(config/initializers/*.rb lib/redis/**/*.rb lib/**/*.rb app/apis/*.rb).each do |pattern|
+%w(config/initializers/*.rb lib/redis/**/*.rb lib/**/*.rb app/**/*.rb).each do |pattern|
   Dir[APP_ROOT.join(pattern)].each {|file| require_relative file }
 end
 
