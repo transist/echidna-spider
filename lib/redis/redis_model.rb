@@ -7,6 +7,14 @@ module RedisModel
     @attributes = attributes
   end
 
+  def [](attribute_key)
+    attributes[attribute_key]
+  end
+
+  def []=(attribute_key, attribute_value)
+    attributes[attribute_key]= attribute_value
+  end
+
   def key
     @key ||= begin
                @id ||= $redis.incr("#{scope_name}.id")
@@ -29,6 +37,23 @@ module RedisModel
 
   def eql?(another)
     self == another
+  end
+
+  # A naive implementation of attribute accessor methods, should define the
+  # accessor methods for each key when they be accessed.
+  def method_missing(method, *args, &block)
+    match = method.to_s.match(/^(\w+)=$/)
+    attr_key = match ? match[1].to_sym : method
+
+    if @attributes.has_key?(attr_key)
+      if match
+        self[attr_key]= args.first
+      else
+        self[attr_key]
+      end
+    else
+      super
+    end
   end
 
   module ClassMethods

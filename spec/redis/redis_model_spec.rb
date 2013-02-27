@@ -82,6 +82,19 @@ describe RedisModel do
     end
   end
 
+  describe '#[]' do
+    it 'provide a handy interface for read attributes' do
+      expect(post[:title]).to eq(post.attributes[:title])
+    end
+  end
+
+  describe '#[]=' do
+    it 'provide a handy interface for write attributes' do
+      post[:title] = 'Another Title'
+      expect(post.attributes[:title]).to eq('Another Title')
+    end
+  end
+
   describe '#save' do
     before do
       post.save
@@ -109,6 +122,17 @@ describe RedisModel do
     it 'should delegate #eql? to #==' do
       post.should_receive(:==).with(another_post)
       post.eql?(another_post)
+    end
+  end
+
+  context 'access attributes with accessor methods' do
+    it 'should read attribute' do
+      expect(post.title).to eq(post.attributes[:title])
+    end
+
+    it 'should write attribute' do
+      post.title = 'Another Title'
+      expect(post.attributes[:title]).to eq('Another Title')
     end
   end
 end
