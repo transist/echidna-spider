@@ -27,6 +27,11 @@ module RedisModel
     $redis.sadd(scope_name, key)
   end
 
+  def update_attribute(attribute_key, attribute_value)
+    @attributes[attribute_key] = attribute_value
+    $redis.hset(key, attribute_key, attribute_value)
+  end
+
   def scope_name
     self.class.scope_name
   end

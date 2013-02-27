@@ -111,6 +111,20 @@ describe RedisModel do
     end
   end
 
+  describe '#update_attribute' do
+    it 'should update the specified attribute for current instance' do
+      post = Post.create(attributes)
+      post.update_attribute(:title, 'Another Title')
+      expect(post.title).to eq('Another Title')
+    end
+
+    it 'should update the specified attribute in redis' do
+      post = Post.create(attributes)
+      post.update_attribute(:title, 'Another Title')
+      expect(Post.find(post.key).title).to eq('Another Title')
+    end
+  end
+
   context 'instance equality' do
     it 'should treat two instances of same model class with same key as ==' do
       post.stub(:key) { 'post/1' }
