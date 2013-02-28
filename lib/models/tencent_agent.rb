@@ -49,7 +49,7 @@ class TencentAgent
 
   def publish_tweets(tweets)
     tweets.each do |tweet|
-      if publish_user(tweet['name'])
+      if try_publish_user(tweet['name'])
         $logger.notice log("Publishing tweet #{tweet['id']}")
         $redis.publish :add_tweet, {
           user_id: tweet['name'],
@@ -67,22 +67,14 @@ class TencentAgent
     update_attribute(:latest_tweet_timestamp, tweets.first['timestamp'])
   end
 
-  def publish_user(user_name)
+  def try_publish_user(user_name)
     result = access_token.get('api/user/other_info', params:{name: user_name}).parsed
 
     if result['ret'].zero? && result['data']
       user = UserFilter.filter(result['data'])
 
       if user
-        $logger.notice log(%{Publishing user "#{user['name']}"})
-        $redis.publish :add_user, {
-          id: user['name'],
-          type: 'tencent',
-          birth_year: user['birth_year'],
-          gender: user['gender'],
-          city: user['city']
-        }.to_json
-
+        publish_user(user)
         return true
       else
         $logger.notice log(%{Skip invalid user "#{user_name}"})
@@ -92,6 +84,17 @@ class TencentAgent
       $logger.err log(%{Failed to gather profile of user "#{user_name}"})
     end
     false
+  end
+
+  def publish_user(user)
+    $logger.notice log(%{Publishing user "#{user['name']}"})
+    $redis.publish :add_user, {
+      id: user['name'],
+      type: 'tencent',
+      birth_year: user['birth_year'],
+      gender: user['gender'],
+      city: user['city']
+    }.to_json
   end
 
   def log(message)
