@@ -17,7 +17,7 @@ class SpiderSchedulerPlugin
         }
 
         operation.call
-        EM.defer(operation)
+        EM::Synchrony.defer(operation)
       end
     end
   end
