@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'goliath'
+gem 'goliath', require: false
 gem 'hiredis'
 gem 'redis'
 gem 'redis-namespace'

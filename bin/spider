@@ -21,6 +21,7 @@ ARGV << '-sv' if ENV['ECHIDNA_SPIDER_ENV'] == 'development'
 
 require 'bundler'
 Bundler.require(:default, ENV['ECHIDNA_SPIDER_ENV'].to_sym)
+require 'goliath'
 
 %w(config/initializers/*.rb lib/redis/**/*.rb lib/**/*.rb app/**/*.rb).each do |pattern|
   Dir[APP_ROOT.join(pattern)].each {|file| require_relative file }
