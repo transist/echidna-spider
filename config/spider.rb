@@ -1,3 +1,5 @@
+require 'syslog'
+
 $redis = EventMachine::Synchrony::ConnectionPool.new(size: 2) do
   Redis::Namespace.new(
     ENV['ECHIDNA_REDIS_NAMESPACE'],

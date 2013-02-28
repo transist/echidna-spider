@@ -1,5 +1,3 @@
-require 'syslog'
-
 class SpiderSchedulerPlugin
   def initialize(port, config, status, logger)
   end
