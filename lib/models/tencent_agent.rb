@@ -5,12 +5,12 @@ class TencentAgent
     @key ||= "agents/tencent/#{@attributes[:openid]}"
   end
 
-  def fetch
+  def gather_tweets
     @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
 
-    $logger.notice log('Fetching tweets...')
+    $logger.notice log('Gathering tweets...')
     loop do
-      result = fetch_tweets_since_latest_known_tweet
+      result = gather_tweets_since_latest_known_tweet
 
       if result['ret'].zero?
         unless result['data']
@@ -22,12 +22,12 @@ class TencentAgent
         break unless result['data']['hasnext'].zero?
 
       else
-        $logger.err log("Failed to fetch tweets: #{result['msg']}")
+        $logger.err log("Failed to gather tweets: #{result['msg']}")
 
         break
       end
     end
-    $logger.notice log('Finished tweets fetching')
+    $logger.notice log('Finished tweets gathering')
   end
 
   private
@@ -40,7 +40,7 @@ class TencentAgent
     @access_token ||= Tencent::Weibo::AccessToken.from_hash(@weibo, attributes)
   end
 
-  def fetch_tweets_since_latest_known_tweet
+  def gather_tweets_since_latest_known_tweet
     # 70 is the max allowed value for reqnum
     access_token.get(
       'api/statuses/home_timeline', params:{reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp}

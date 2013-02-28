@@ -5,11 +5,17 @@ class SpiderSchedulerPlugin
   end
 
   def run
+    schedule_gather_tweets
+  end
+
+  private
+
+  def schedule_gather_tweets
     EM::Synchrony.add_periodic_timer(5) do
       TencentAgent.all.each do |agent|
 
         operation = -> {
-          agent.fetch
+          agent.gather_tweets
         }
 
         operation.call
