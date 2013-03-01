@@ -1,19 +1,23 @@
-require 'syslog'
-
 class SpiderSchedulerPlugin
   def initialize(port, config, status, logger)
   end
 
   def run
+    schedule_gather_tweets
+  end
+
+  private
+
+  def schedule_gather_tweets
     EM::Synchrony.add_periodic_timer(5) do
       TencentAgent.all.each do |agent|
 
         operation = -> {
-          agent.fetch
+          agent.gather_tweets
         }
 
         operation.call
-        EM.defer(operation)
+        EM::Synchrony.defer(operation)
       end
     end
   end
