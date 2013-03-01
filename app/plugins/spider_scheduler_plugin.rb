@@ -9,16 +9,21 @@ class SpiderSchedulerPlugin
   private
 
   def schedule_gather_tweets
-    EM::Synchrony.add_periodic_timer(5) do
+    gather_tweets_operation = -> {
+      # Agents will do their work concurrently
       TencentAgent.all.each do |agent|
 
         operation = -> {
           agent.gather_tweets
         }
 
-        operation.call
         EM::Synchrony.defer(operation)
       end
-    end
+    }
+
+    EM::Synchrony.add_periodic_timer(5, &gather_tweets_operation)
+
+    # Run gather_tweets_operation immediately for after boot
+    gather_tweets_operation.call
   end
 end
