@@ -1,7 +1,7 @@
 class TencentAgent
   include RedisModel
 
-  GET_GROUP_URL = "http://#{ENV['ECHIDNA_STREAMING_IP']}:#{ENV['ECHIDNA_STREAMING_PORT']}/get_group"
+  GET_GROUP_IDS_URL = "http://#{ENV['ECHIDNA_STREAMING_IP']}:#{ENV['ECHIDNA_STREAMING_PORT']}/get_group_ids"
 
   def key
     @key ||= "agents/tencent/#{@attributes[:openid]}"
@@ -76,11 +76,13 @@ class TencentAgent
       user = UserFilter.filter(result['data'])
 
       if user
-        group_id = get_group_id(user)
+        group_ids = get_group_ids(user)
 
-        if group_id
+        unless group_ids.empty?
           publish_user(user)
-          publish_user_to_group(user, group_id)
+          group_ids.each do |group_id|
+            publish_user_to_group(user, group_id)
+          end
           return true
         end
       else
@@ -104,17 +106,17 @@ class TencentAgent
     }.to_json
   end
 
-  def get_group_id(user)
+  def get_group_ids(user)
     response = Faraday.get(
-      GET_GROUP_URL,
+      GET_GROUP_IDS_URL,
       birth_year: user['birth_year'],
       city: user['city'],
       gender: user['gender']
     )
-    MultiJson.load(response.body)['id']
+    MultiJson.load(response.body)['ids']
   rescue
-    $logger.err log(%{Failed to get group id for user "#{user['name']}"})
-    nil
+    $logger.err log(%{Failed to get group ids for user "#{user['name']}"})
+    []
   end
 
   def publish_user_to_group(user, group_id)
