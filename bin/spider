@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-ENV['ECHIDNA_SPIDER_ENV']                   ||= 'development'
+ENV['ECHIDNA_SPIDER_ENV']                   ||= 'development' # [development|test|production]
 ENV['ECHIDNA_SPIDER_IP']                    ||= '0.0.0.0'
 ENV['ECHIDNA_SPIDER_PORT']                  ||= '9002'
-ENV['ECHIDNA_SPIDER_DAEMON']                ||= 'false'
+ENV['ECHIDNA_SPIDER_DAEMON']                ||= 'false'       # [true|false]
 ENV['ECHIDNA_SPIDER_TENCENT_APP_KEY']       ||= '801317572'
 ENV['ECHIDNA_SPIDER_TENCENT_APP_SECRET']    ||= '2a7d8fc10f48f5dbacffed0cee5dc49e'
 ENV['ECHIDNA_SPIDER_TENCENT_REDIRECT_URI']  ||= 'http://localhost:9000/agents/tencent/create'
