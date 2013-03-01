@@ -1,5 +1,6 @@
 class TencentAgent
   include RedisModel
+  include ApiCallsLimiter
 
   GET_GROUP_IDS_URL = "http://#{ENV['ECHIDNA_STREAMING_IP']}:#{ENV['ECHIDNA_STREAMING_PORT']}/get_group_ids"
 
@@ -30,6 +31,8 @@ class TencentAgent
       end
     end
     $logger.notice log('Finished tweets gathering')
+  rescue Error => e
+    $logger.err log("Aborted tweets gathering: #{e.message}")
   end
 
   private
