@@ -1,17 +1,14 @@
 #!/usr/bin/env ruby
 
-require 'pathname'
-APP_ROOT = Pathname.new(File.expand_path('../..', __FILE__))
-
 require 'bundler'
 Bundler.require(:default)
 
 # Get LocList.xml from http://mat1.gtimg.com/app/opent/download/addresslist.zip
 
 Location = {}
-File.open(APP_ROOT.join('data/TencentLocation.json'), 'w') do |json|
+File.open($app_root.join('data/TencentLocation.json'), 'w') do |json|
 
-  data = MultiXml.parse(File.open(APP_ROOT.join('data/LocList.xml')))
+  data = MultiXml.parse(File.open($app_root.join('data/LocList.xml')))
   china = data['Location']['CountryRegion'].find {|cr| cr['Name'] = '中国' }
 
   china['State'].each do |state|
