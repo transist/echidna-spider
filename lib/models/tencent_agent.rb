@@ -53,13 +53,16 @@ class TencentAgent
     tweets.each do |tweet|
       if try_publish_user(tweet['name'])
         $logger.notice log("Publishing tweet #{tweet['id']}")
-        $redis.publish :add_tweet, {
-          user_id: tweet['name'],
-          user_type: :tencent,
-          text: tweet['text'],
-          id: tweet['id'],
-          url: "http://t.qq.com/p/t/#{tweet['id']}",
-          timestamp: tweet['timestamp']
+        $redis.lpush "streaming/messages", {
+          type: "add_tweet",
+          body: {
+            user_id: tweet['name'],
+            user_type: :tencent,
+            text: tweet['text'],
+            id: tweet['id'],
+            url: "http://t.qq.com/p/t/#{tweet['id']}",
+            timestamp: tweet['timestamp']
+          }
         }.to_json
       else
         $logger.warning log(%{Skip tweet "#{tweet['id']}" due to publish it's user skipped/failed})
@@ -97,12 +100,15 @@ class TencentAgent
 
   def publish_user(user)
     $logger.notice log(%{Publishing user "#{user['name']}"})
-    $redis.publish :add_user, {
-      id: user['name'],
-      type: 'tencent',
-      birth_year: user['birth_year'],
-      gender: user['gender'],
-      city: user['city']
+    $redis.lpush "streaming/messages", {
+      type: "add_user",
+      body: {
+        id: user['name'],
+        type: 'tencent',
+        birth_year: user['birth_year'],
+        gender: user['gender'],
+        city: user['city']
+      }
     }.to_json
   end
 
@@ -121,10 +127,13 @@ class TencentAgent
 
   def publish_user_to_group(user, group_id)
     $logger.notice log(%{Publishing user "#{user['name']}" to group "#{group_id}"})
-    $redis.publish :add_user_to_group, {
-      group_id: group_id,
-      user_id: user['name'],
-      user_type: 'tencent'
+    $redis.lpush "streaming/messages", {
+      type: "add_user_to_group",
+      body: {
+        group_id: group_id,
+        user_id: user['name'],
+        user_type: 'tencent'
+      }
     }.to_json
   end
 
