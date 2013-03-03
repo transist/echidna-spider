@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-ENV['ECHIDNA_SPIDER_ENV']                   ||= 'development' # [development|test|production]
+ENV['ECHIDNA_ENV']                          ||= 'development' # [development|test|production]
 ENV['ECHIDNA_SPIDER_IP']                    ||= '0.0.0.0'
 ENV['ECHIDNA_SPIDER_PORT']                  ||= '9002'
 ENV['ECHIDNA_SPIDER_DAEMON']                ||= 'false'       # [true|false]
@@ -10,12 +10,12 @@ ENV['ECHIDNA_SPIDER_TENCENT_REDIRECT_URI']  ||= 'http://localhost:9000/agents/te
 ENV['ECHIDNA_STREAMING_IP']                 ||= '0.0.0.0'
 ENV['ECHIDNA_STREAMING_PORT']               ||= '9001'
 
-ARGV.replace(ARGV + ['-e', ENV['ECHIDNA_SPIDER_ENV'], '-a', ENV['ECHIDNA_SPIDER_IP'], '-p', ENV['ECHIDNA_SPIDER_PORT']])
+ARGV.replace(ARGV + ['-e', ENV['ECHIDNA_ENV'], '-a', ENV['ECHIDNA_SPIDER_IP'], '-p', ENV['ECHIDNA_SPIDER_PORT']])
 ARGV << '-d' if ENV['ECHIDNA_SPIDER_DAEMON'] == 'true'
-ARGV << '-sv' if ENV['ECHIDNA_SPIDER_ENV'] == 'development'
+ARGV << '-sv' if ENV['ECHIDNA_ENV'] == 'development'
 
 require 'bundler'
-Bundler.require(:default, ENV['ECHIDNA_SPIDER_ENV'].to_sym)
+Bundler.require(:default, ENV['ECHIDNA_ENV'].to_sym)
 require 'goliath'
 
 class Spider < Goliath::API
