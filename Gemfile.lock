@@ -17,6 +17,15 @@ GIT
     tencent-weibo (0.0.1)
       oauth2 (~> 0.9.1)
 
+GIT
+  remote: git@github.com:transist/echidna-ruby.git
+  revision: 3e9386c17723edc5c7256b811aef189260f83262
+  specs:
+    echidna-ruby (0.0.1)
+      hiredis
+      redis
+      redis-namespace
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -94,7 +103,7 @@ GEM
       rack (>= 1.0.0)
     rack-respond_to (0.9.8)
       rack-accept-media-types (>= 0.6)
-    redis (3.0.2)
+    redis (3.0.3)
     redis-namespace (1.2.1)
       redis (~> 3.0.0)
     rspec (2.13.0)
@@ -117,16 +126,14 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   awesome_print
+  echidna-ruby!
   em-synchrony
   goliath
   grape
-  hiredis
   oauth2!
   pry
   pry-nav
   pry-stack_explorer
-  redis
-  redis-namespace
   rspec
   tencent-weibo!
   yajl-ruby
