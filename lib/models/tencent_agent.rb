@@ -1,6 +1,7 @@
 class TencentAgent
   include RedisModel
   include TweetsGathering
+  include UsersGathering
   include ApiCallsLimiter
 
   def key
