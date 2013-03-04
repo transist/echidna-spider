@@ -17,19 +17,19 @@ module RedisModel
 
   def key
     @key ||= begin
-               @id ||= $redis.incr("#{scope_name}.id")
+               @id ||= connection.incr("#{scope_name}.id")
                "#{scope_name}/#{@id}"
              end
   end
 
   def save
-    $redis.hmset(key, attributes.to_a.flatten)
-    $redis.sadd(scope_name, key)
+    connection.hmset(key, attributes.to_a.flatten)
+    connection.sadd(scope_name, key)
   end
 
   def update_attribute(attribute_key, attribute_value)
     @attributes[attribute_key] = attribute_value
-    $redis.hset(key, attribute_key, attribute_value)
+    connection.hset(key, attribute_key, attribute_value)
   end
 
   def scope_name
@@ -61,15 +61,19 @@ module RedisModel
     end
   end
 
+  def connection
+    self.class.connection
+  end
+
   module ClassMethods
     def all
-      $redis.smembers(scope_name).map do |key|
+      connection.smembers(scope_name).map do |key|
         find(key)
       end
     end
 
     def find(key)
-      instance = new($redis.hgetall(key))
+      instance = new(connection.hgetall(key))
       instance.instance_variable_set(:@key, key)
       instance
     end
@@ -82,6 +86,15 @@ module RedisModel
 
     def scope_name
       name.tableize
+    end
+
+    def connection
+      @connection ||= begin
+                        connection = Redis::Namespace.new(ENV['ECHIDNA_REDIS_NAMESPACE'], redis: SymbolizedRedis.new(host: ENV['ECHIDNA_REDIS_HOST'], port: ENV['ECHIDNA_REDIS_PORT'], driver: :hiredis))
+
+                        $logger.notice("RedisModel connect to redis: #{ENV['ECHIDNA_REDIS_HOST']}:#{ENV['ECHIDNA_REDIS_PORT']}/#{ENV['ECHIDNA_REDIS_NAMESPACE']}")
+                        connection
+                      end
     end
   end
 end
