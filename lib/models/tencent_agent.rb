@@ -8,6 +8,10 @@ class TencentAgent
     @key ||= "agents/tencent/#{@attributes[:openid]}"
   end
 
+  def get(path, params = {}, &block)
+    access_token.get(path, params: params, &block).parsed
+  end
+
   private
 
   def access_token

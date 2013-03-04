@@ -35,9 +35,7 @@ class TencentAgent
 
     def gather_tweets_since_latest_known_tweet
       # 70 is the max allowed value for reqnum
-      access_token.get(
-        'api/statuses/home_timeline', params:{reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp}
-      ).parsed
+      get('api/statuses/home_timeline', reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp)
     end
 
     def publish_tweets(tweets)
@@ -64,7 +62,7 @@ class TencentAgent
     end
 
     def try_publish_user(user_name)
-      result = access_token.get('api/user/other_info', params:{name: user_name}).parsed
+      result = get('api/user/other_info', name: user_name)
 
       if result['ret'].zero? && result['data']
         user = UserFilter.filter(result['data'])
