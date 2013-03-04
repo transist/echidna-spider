@@ -19,7 +19,7 @@ GIT
 
 GIT
   remote: git@github.com:transist/echidna-ruby.git
-  revision: 3e9386c17723edc5c7256b811aef189260f83262
+  revision: d727c06f09351c4e6f557ac184e21e93500aa97d
   specs:
     echidna-ruby (0.0.1)
       hiredis
