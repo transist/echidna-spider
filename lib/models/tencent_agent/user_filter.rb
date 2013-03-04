@@ -49,7 +49,7 @@ class TencentAgent
     end
 
     def get_location_by_key(key)
-      @location ||= MultiJson.load(File.read(APP_ROOT.join('data/TencentLocation.json')))
+      @location ||= MultiJson.load(File.read($app_root.join('data/TencentLocation.json')))
       @location[key]
     end
   end
