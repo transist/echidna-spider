@@ -18,9 +18,9 @@ GIT
       oauth2 (~> 0.9.1)
 
 PATH
-  remote: echidna-ruby
+  remote: echidna-env
   specs:
-    echidna-ruby (0.0.1)
+    echidna-env (0.0.1)
       hiredis
       redis
       redis-namespace
@@ -125,7 +125,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   awesome_print
-  echidna-ruby!
+  echidna-env!
   em-synchrony
   goliath
   grape

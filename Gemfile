@@ -8,7 +8,7 @@ gem 'activesupport', require: 'active_support/all'
 gem 'oauth2', git: 'git://github.com/rainux/oauth2'
 gem 'tencent-weibo', git: 'git://github.com/rainux/tencent-weibo'
 
-gem 'echidna-ruby', path: 'echidna-ruby', require: 'echidna/all'
+gem 'echidna-env', path: 'echidna-env', require: 'echidna/all'
 
 group :development, :test do
   gem 'awesome_print'
