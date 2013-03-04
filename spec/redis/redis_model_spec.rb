@@ -63,7 +63,7 @@ describe RedisModel do
 
   describe '#key' do
     it 'should be combined by the scope name and auto generated id' do
-      id = $redis.incr('posts.id')
+      id = Post.connection.incr('posts.id')
 
       expect(post.key).to eq("#{Post.scope_name}/#{id + 1}")
 
@@ -101,12 +101,12 @@ describe RedisModel do
     end
 
     it 'should store the model instance as hash with #key' do
-      loaded_attrs = $redis.hgetall(post.key)
+      loaded_attrs = Post.connection.hgetall(post.key)
       expect(loaded_attrs).to eq(attributes)
     end
 
     it 'should add model key to models set' do
-      post_keys = $redis.smembers(:posts)
+      post_keys = Post.connection.smembers(:posts)
       expect(post_keys).to include(post.key)
     end
   end
