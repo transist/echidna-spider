@@ -17,9 +17,8 @@ GIT
     tencent-weibo (0.0.1)
       oauth2 (~> 0.9.1)
 
-GIT
-  remote: git@github.com:transist/echidna-ruby.git
-  revision: d727c06f09351c4e6f557ac184e21e93500aa97d
+PATH
+  remote: echidna-ruby
   specs:
     echidna-ruby (0.0.1)
       hiredis

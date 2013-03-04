@@ -1,0 +1,3 @@
+[submodule "echidna-ruby"]
+	path = echidna-ruby
+	url = git@github.com:transist/echidna-ruby.git
