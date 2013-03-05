@@ -40,10 +40,6 @@ class TencentAgent
       $logger.err log("Aborted users gathering: #{e.message}")
     end
 
-    def add_user_to_list username
-      post('api/list/add_to_list', format: 'json',  names: username, listid: user_list['listid'])
-    end
-
     private
 
     def record_user_sample(user_name, keyword)
@@ -124,6 +120,10 @@ class TencentAgent
       @list ||= post('api/list/create', format: 'json', name: LIST_NAME, description: LIST_NAME, tag: 'echidna', access: '1')
 
       @list
+    end
+
+    def add_user_to_list username
+      post('api/list/add_to_list', format: 'json',  names: username, listid: user_list['listid'])
     end
   end
 end
