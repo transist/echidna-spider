@@ -4,7 +4,7 @@ class TencentAgent
 
     CACHE_KEY = 'spider:tencent:api_cache'
 
-    def get(path, params = {}, &block)
+    def cached_get(path, params = {}, &block)
       cache_field = "GET #{path} #{params}"
 
       if $redis.hexists(CACHE_KEY, cache_field)
@@ -13,7 +13,7 @@ class TencentAgent
 
       else
         $logger.notice log("Cache miss: #{cache_field}")
-        result = access_token.get(path, params: params, &block).parsed
+        result = get(path, params, &block)
         $redis.hset(CACHE_KEY, cache_field, MultiJson.dump(result))
         result
       end

@@ -10,8 +10,7 @@ class TencentAgent
   end
 
   def get(path, params = {}, &block)
-    # Delegate to ApiResponseCacher#get
-    super
+    access_token.get(path, params: params, &block).parsed
   end
 
   private
