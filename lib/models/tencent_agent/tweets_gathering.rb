@@ -44,7 +44,7 @@ class TencentAgent
       tweets.each do |tweet|
         if try_publish_user(tweet['name'])
           $logger.notice log("Publishing tweet #{tweet['id']}")
-          $redis.lpush "streaming/messages", {
+          $redis.rpush "streaming/messages", {
             type: "add_tweet",
             body: {
               user_id: tweet['name'],
@@ -91,7 +91,7 @@ class TencentAgent
 
     def publish_user(user)
       $logger.notice log(%{Publishing user "#{user['name']}"})
-      $redis.lpush "streaming/messages", {
+      $redis.rpush "streaming/messages", {
         type: "add_user",
         body: {
           id: user['name'],
@@ -118,7 +118,7 @@ class TencentAgent
 
     def publish_user_to_group(user, group_id)
       $logger.notice log(%{Publishing user "#{user['name']}" to group "#{group_id}"})
-      $redis.lpush "streaming/messages", {
+      $redis.rpush "streaming/messages", {
         type: "add_user_to_group",
         body: {
           group_id: group_id,
