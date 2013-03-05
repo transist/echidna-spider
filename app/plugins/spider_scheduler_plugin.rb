@@ -4,7 +4,7 @@ class SpiderSchedulerPlugin
 
   def run
     schedule_gather_users
-    schedule_gather_tweets
+    # schedule_gather_tweets
   end
 
   private
@@ -40,7 +40,7 @@ class SpiderSchedulerPlugin
       end
     }
 
-    EM::Synchrony.add_periodic_timer(1.hour, &gather_users_operation)
+    EM::Synchrony.add_periodic_timer(10.minutes, &gather_users_operation)
     gather_users_operation.call
   end
 end
