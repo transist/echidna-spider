@@ -62,7 +62,7 @@ class TencentAgent
     end
 
     def try_publish_user(user_name)
-      result = get('api/user/other_info', name: user_name)
+      result = cached_get('api/user/other_info', name: user_name)
 
       if result['ret'].zero? && result['data']
         user = UserFilter.filter(result['data'])

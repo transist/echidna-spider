@@ -12,7 +12,7 @@ class TencentAgent
 
       while keyword = $redis.srandmember(KEYWORDS_QUEUE)
         $logger.notice log(%{Gathering first user from tweets of keyword "#{keyword}"...})
-        result = get('api/search/t', keyword: keyword, pagesize: 1)
+        result = cached_get('api/search/t', keyword: keyword, pagesize: 1)
 
         if result['ret'].zero?
           $redis.srem(KEYWORDS_QUEUE, keyword)
