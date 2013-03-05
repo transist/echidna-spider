@@ -3,6 +3,8 @@ class TencentAgent
     extend ActiveSupport::Concern
 
     KEYWORDS_QUEUE = 'spider:tencent:users_gathering:keywords_queue'
+    SAMPLE_USERS = 'spider:tencent:users_gathering:sample_users'
+    SAMPLE_USER_KEYWORDS = 'spider:tencent:users_gathering:sample_user:%s:keywords'
 
     def gather_users
       $redis.sunionstore(KEYWORDS_QUEUE, :words) unless $redis.exists(KEYWORDS_QUEUE)
@@ -21,7 +23,7 @@ class TencentAgent
             next
           end
 
-          try_publish_user(result['data']['info'].first['name'])
+          try_publish_user(result['data']['info'].first['name'], keyword)
 
         else
           $logger.err log("Failed to gather user: #{result['msg']}")
@@ -36,10 +38,18 @@ class TencentAgent
 
     private
 
-    def try_publish_user(user_name)
+    def record_user_sample(user_name, keyword)
+      existing_score = $redis.zscore(SAMPLE_USERS, user_name).to_i
+      $redis.zadd(SAMPLE_USERS, existing_score + 1, user_name)
+
+      $redis.sadd(SAMPLE_USER_KEYWORDS % user_name, keyword)
+    end
+
+    def try_publish_user(user_name, keyword = nil)
       result = cached_get('api/user/other_info', name: user_name)
 
       if result['ret'].zero? && result['data']
+        record_user_sample(user_name, keyword)
         user = UserFilter.filter(result['data'])
 
         if user
