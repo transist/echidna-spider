@@ -2,6 +2,8 @@ class TencentAgent
   module UsersGathering
     extend ActiveSupport::Concern
 
+    GET_GROUP_IDS_URL = -> { "http://#{ENV['ECHIDNA_STREAMING_IP']}:#{ENV['ECHIDNA_STREAMING_PORT']}/get_group_ids" }
+
     KEYWORDS_QUEUE = 'spider:tencent:users_gathering:keywords_queue'
     SAMPLE_USERS = 'spider:tencent:users_gathering:sample_users'
     SAMPLE_USER_KEYWORDS = 'spider:tencent:users_gathering:sample_user:%s:keywords'
@@ -84,7 +86,7 @@ class TencentAgent
 
     def get_group_ids(user)
       response = Faraday.get(
-        GET_GROUP_IDS_URL,
+        GET_GROUP_IDS_URL.call,
         birth_year: user['birth_year'],
         city: user['city'],
         gender: user['gender']

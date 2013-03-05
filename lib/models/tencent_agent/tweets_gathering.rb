@@ -5,8 +5,6 @@ class TencentAgent
     extend ActiveSupport::Concern
     include UsersGathering
 
-    GET_GROUP_IDS_URL = "http://#{ENV['ECHIDNA_STREAMING_IP']}:#{ENV['ECHIDNA_STREAMING_PORT']}/get_group_ids"
-
     def gather_tweets
       @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
 
