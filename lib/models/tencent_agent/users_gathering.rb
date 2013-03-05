@@ -17,7 +17,7 @@ class TencentAgent
         $logger.notice log(%{Gathering first user from tweets of keyword "#{keyword}"...})
         result = cached_get('api/search/t', keyword: keyword, pagesize: 30)
 
-        if result['ret'].zero?
+        if result['ret'].to_i.zero?
           $redis.srem(KEYWORDS_QUEUE, keyword)
 
           unless result['data']
@@ -50,7 +50,7 @@ class TencentAgent
     def try_publish_user(user_name, keyword = nil)
       result = cached_get('api/user/other_info', name: user_name)
 
-      if result['ret'].zero? && result['data']
+      if result['ret'].to_i.zero? && result['data']
         record_user_sample(user_name, keyword) if keyword
         user = UserFilter.filter(result['data'])
 

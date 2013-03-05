@@ -1,3 +1,8 @@
+require_relative 'tencent_agent/api_calls_limiter'
+require_relative 'tencent_agent/api_response_cacher'
+require_relative 'tencent_agent/tweets_gathering'
+require_relative 'tencent_agent/users_gathering'
+
 class TencentAgent
   include RedisModel
   include TweetsGathering
