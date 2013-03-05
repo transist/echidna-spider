@@ -49,21 +49,17 @@ class TencentAgent
       result = cached_get('api/user/other_info', name: user_name)
 
       if result['ret'].zero? && result['data']
-        record_user_sample(user_name, keyword)
+        record_user_sample(user_name, keyword) if keyword
         user = UserFilter.filter(result['data'])
 
-        if user
-          group_ids = get_group_ids(user)
+        group_ids = get_group_ids(user)
 
-          unless group_ids.empty?
-            publish_user(user)
-            group_ids.each do |group_id|
-              publish_user_to_group(user, group_id)
-            end
-            return true
+        unless group_ids.empty?
+          publish_user(user)
+          group_ids.each do |group_id|
+            publish_user_to_group(user, group_id)
           end
-        else
-          $logger.notice log(%{Skip invalid user "#{user_name}"})
+          return true
         end
 
       else
