@@ -3,6 +3,7 @@ class SpiderSchedulerPlugin
   end
 
   def run
+    schedule_gather_users
     schedule_gather_tweets
   end
 
@@ -25,5 +26,21 @@ class SpiderSchedulerPlugin
 
     # Run gather_tweets_operation immediately for after boot
     gather_tweets_operation.call
+  end
+
+  def schedule_gather_users
+    gather_users_operation = -> {
+      TencentAgent.all.each do |agent|
+
+        operation = -> {
+          agent.gather_users
+        }
+
+        EM::Synchrony.defer(operation)
+      end
+    }
+
+    EM::Synchrony.add_periodic_timer(1.hour, &gather_users_operation)
+    gather_users_operation.call
   end
 end
