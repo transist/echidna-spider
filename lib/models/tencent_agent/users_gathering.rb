@@ -52,18 +52,14 @@ class TencentAgent
         record_user_sample(user_name, keyword) if keyword
         user = UserFilter.filter(result['data'])
 
-        if user
-          group_ids = get_group_ids(user)
+        group_ids = get_group_ids(user)
 
-          unless group_ids.empty?
-            publish_user(user)
-            group_ids.each do |group_id|
-              publish_user_to_group(user, group_id)
-            end
-            return true
+        unless group_ids.empty?
+          publish_user(user)
+          group_ids.each do |group_id|
+            publish_user_to_group(user, group_id)
           end
-        else
-          $logger.notice log(%{Skip invalid user "#{user_name}"})
+          return true
         end
 
       else

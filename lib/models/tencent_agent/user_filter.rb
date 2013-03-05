@@ -6,9 +6,8 @@ class TencentAgent
     SPECIAL_CITIES = [11, 12, 31, 50]
 
     def filter(user)
-      return unless filter_by_city(user)
-      return unless filter_by_gender(user)
-      filter_by_birth_year(user)
+      filter_by_city(user)
+      filter_by_gender(user)
     end
 
     private
@@ -17,13 +16,13 @@ class TencentAgent
     def filter_by_city(user)
       case user['province_code'].to_i
       when 0
-        return nil
+        # Do nothing to not filter out user
       when *SPECIAL_CITIES
         user['city'] = get_location_by_key(user['province_code'])
       else
         case user['city_code'].to_i
         when 0
-          return nil
+          # Do nothing to not filter out user
         else
           key = user['province_code'].to_s + ':' + user['city_code']
           user['city'] = get_location_by_key(key)
@@ -35,17 +34,13 @@ class TencentAgent
     def filter_by_gender(user)
       case user['sex']
       when 0
-        return nil
+        user['gender'] = 'both'
       when 1
         user['gender'] = 'male'
       when 2
         user['gender'] = 'female'
       end
       user
-    end
-
-    def filter_by_birth_year(user)
-      user['birth_year'].zero? ? nil : user
     end
 
     def get_location_by_key(key)
