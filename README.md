@@ -43,9 +43,9 @@ Notable environment variables for configuration:
 
 The app key and secret of Tencent Weibo app created from https://open.t.qq.com/
 
-    ECHIDNA_SPIDER_TENCENT_REDIRECT_URI='http://localhost:9000/agents/tencent/create'
+    ECHIDNA_SPIDER_HOST
 
-The redirect uri after complete OAuth process from https://open.t.qq.com, set hostname to a domain name or external IP address to make sure the uri is accessable from your browser.
+The hostname running spider, which must be accessable from your browser. The Tencent Weibo OAuth process will construct `redirect_uri` with this hostname.
 
 Check header part of `bin/spider` for other configurable environment variables.
 
