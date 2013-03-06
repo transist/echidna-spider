@@ -5,7 +5,7 @@ class SpiderAPI < Grape::API
     def weibo
       @weibo ||= Tencent::Weibo::Client.new(
         ENV['ECHIDNA_SPIDER_TENCENT_APP_KEY'], ENV['ECHIDNA_SPIDER_TENCENT_APP_SECRET'],
-        "http://#{ENV['ECHIDNA_SPIDER_HOST']}:#{app_port('spider')}/agents/tencent/create"
+        ENV['ECHIDNA_SPIDER_TENCENT_REDIRECT_URI']
       )
     end
   end
