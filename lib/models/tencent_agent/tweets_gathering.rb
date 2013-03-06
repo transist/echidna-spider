@@ -4,6 +4,7 @@ class TencentAgent
   module TweetsGathering
     extend ActiveSupport::Concern
     include UsersGathering
+    include UsersTracking
 
     def gather_tweets
       @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
@@ -12,14 +13,18 @@ class TencentAgent
       loop do
         result = gather_tweets_since_latest_known_tweet
 
-        if result['ret'].zero?
+        if result['ret'].to_i.zero?
           unless result['data']
-            $logger.notice log('No new tweets')
+            $logger.notice log('No new tweets (when ret code is zero)')
             break
           end
 
           publish_tweets(result['data']['info'])
           break unless result['data']['hasnext'].zero?
+
+        elsif result['ret'].to_i == 5 && result['errcode'].to_i == 5
+          $logger.notice log('No new tweets')
+          break
 
         else
           $logger.err log("Failed to gather tweets: #{result['msg']}")
@@ -36,7 +41,7 @@ class TencentAgent
 
     def gather_tweets_since_latest_known_tweet
       # 70 is the max allowed value for reqnum
-      get('api/statuses/home_timeline', reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp)
+      get('api/list/timeline', listid: tracking_list_id, reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp)
     end
 
     def publish_tweets(tweets)

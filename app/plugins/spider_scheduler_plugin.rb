@@ -5,7 +5,7 @@ class SpiderSchedulerPlugin
   def run
     schedule_gather_users
     schedule_track_users
-    # schedule_gather_tweets
+    schedule_gather_tweets
   end
 
   private
