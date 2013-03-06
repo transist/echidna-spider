@@ -7,7 +7,11 @@ class TencentAgent
     include UsersTracking
 
     def gather_tweets
-      @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
+      if ENV['ECHIDNA_SPIDER_DEBUG'] == 'true'
+        @attributes[:latest_tweet_timestamp] = 2.days.ago.to_i
+      else
+        @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
+      end
 
       $logger.notice log('Gathering tweets...')
       loop do
