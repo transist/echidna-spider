@@ -23,7 +23,7 @@ class SpiderSchedulerPlugin
       end
     }
 
-    EM::Synchrony.add_periodic_timer(5, &gather_tweets_operation)
+    EM::Synchrony.add_periodic_timer(30, &gather_tweets_operation)
 
     # Run gather_tweets_operation immediately for after boot
     gather_tweets_operation.call
