@@ -64,20 +64,5 @@ class TencentAgent
         false
       end
     end
-
-    def handle_result(result, errmsg, &block)
-      ret = nil
-      if result["errcode"].to_s == "0"
-        if block_given?
-          ret = block.call(result)
-        else
-          ret = result['data']
-        end
-      else
-        $logger.err log("#{errmsg}, errcode: #{result["errcode"]}, msg: #{result["msg"]}")
-        ret = {}
-      end
-      ret
-    end
   end
 end
