@@ -51,7 +51,7 @@ class TencentAgent
 
       $redis.sadd(SAMPLE_USER_KEYWORDS % user_name, keyword)
 
-      $redis.rpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
+      $redis.lpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
     end
 
     def try_publish_user(user_name, keyword = nil)
@@ -79,7 +79,7 @@ class TencentAgent
 
     def publish_user(user)
       $logger.notice log(%{Publishing user "#{user['name']}"})
-      $redis.rpush 'streaming/messages', {
+      $redis.lpush 'streaming/messages', {
         type: 'add_user',
         body: {
           id: user['name'],
@@ -106,7 +106,7 @@ class TencentAgent
 
     def publish_user_to_group(user, group_id)
       $logger.notice log(%{Publishing user "#{user['name']}" to group "#{group_id}"})
-      $redis.rpush 'streaming/messages', {
+      $redis.lpush 'streaming/messages', {
         type: 'add_user_to_group',
         body: {
           group_id: group_id,

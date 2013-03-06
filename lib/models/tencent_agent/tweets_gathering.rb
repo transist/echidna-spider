@@ -50,7 +50,7 @@ class TencentAgent
     def publish_tweets(tweets)
       tweets.each do |tweet|
         $logger.notice log("Publishing tweet #{tweet['id']}")
-        $redis.rpush "streaming/messages", {
+        $redis.lpush "streaming/messages", {
           type: "add_tweet",
           body: {
             user_id: tweet['name'],
