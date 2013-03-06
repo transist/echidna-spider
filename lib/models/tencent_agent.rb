@@ -18,6 +18,10 @@ class TencentAgent
     access_token.get(path, params: params, &block).parsed
   end
 
+  def post(path, body = {}, &block)
+    access_token.post(path, body: body, &block).parsed
+  end
+
   private
 
   def access_token

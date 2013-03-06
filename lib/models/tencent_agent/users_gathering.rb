@@ -7,6 +7,7 @@ class TencentAgent
     KEYWORDS_QUEUE = 'spider:tencent:users_gathering:keywords_queue'
     SAMPLE_USERS = 'spider:tencent:users_gathering:sample_users'
     SAMPLE_USER_KEYWORDS = 'spider:tencent:users_gathering:sample_user:%s:keywords'
+    LIST_NAME = 'userlist'
 
     def gather_users
       $redis.sunionstore(KEYWORDS_QUEUE, :words) unless $redis.exists(KEYWORDS_QUEUE)
@@ -25,7 +26,10 @@ class TencentAgent
             next
           end
 
-          try_publish_user(result['data']['info'].first['name'], keyword)
+          user_name = result['data']['info'].first['name']
+
+          add_user_to_list(user_name)
+          try_publish_user(user_name, keyword)
 
         else
           $logger.err log("Failed to gather user: #{result['msg']}")
@@ -107,6 +111,42 @@ class TencentAgent
           user_type: 'tencent'
         }
       }.to_json
+    end
+
+    def user_list
+      if @list.nil?
+        result = post('api/list/get_list')
+        @list = handle_result(result, "Failed to get list") do |r|
+          r['data']['info'].find{|el| el['name'] == LIST_NAME }
+        end
+      end
+
+      if @list.nil?
+        result = post('api/list/create', format: 'json', name: LIST_NAME, description: LIST_NAME, tag: 'echidna', access: '1')
+        @list = handle_result(result, "Failed to create list")
+      end
+
+      @list
+    end
+
+    def add_user_to_list username
+      result = post('api/list/add_to_list', format: 'json',  names: username, listid: user_list['listid'])
+      handle_result(result, 'Failed to add user to list')
+    end
+
+    def handle_result(result, errmsg, &block)
+      ret = nil
+      if result["errcode"].to_s == "0"
+        if block_given?
+          ret = block.call(result)
+        else
+          ret = result['data']
+        end
+      else
+        $logger.err log("#{errmsg}, errcode: #{result["errcode"]}, msg: #{result["msg"]}")
+        ret = {}
+      end
+      ret
     end
   end
 end
