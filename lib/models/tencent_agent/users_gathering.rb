@@ -1,3 +1,5 @@
+require_relative 'users_tracking'
+
 class TencentAgent
   module UsersGathering
     extend ActiveSupport::Concern
@@ -28,7 +30,6 @@ class TencentAgent
 
           user_name = result['data']['info'].first['name']
 
-          add_user_to_list(user_name)
           try_publish_user(user_name, keyword)
 
         else
@@ -49,6 +50,8 @@ class TencentAgent
       $redis.zadd(SAMPLE_USERS, existing_score + 1, user_name)
 
       $redis.sadd(SAMPLE_USER_KEYWORDS % user_name, keyword)
+
+      $redis.rpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
     end
 
     def try_publish_user(user_name, keyword = nil)

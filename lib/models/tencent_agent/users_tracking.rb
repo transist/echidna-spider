@@ -2,27 +2,67 @@ class TencentAgent
   module UsersTracking
     extend ActiveSupport::Concern
 
-    LIST_NAME = 'userlist'
+    USERS_TRACKING_LIST = 'TrackingUsers'
+    USERS_TRACKING_QUEUE = 'spider:tencent:users_tracking_queue'
 
-    def user_list
-      if @list.nil?
-        result = post('api/list/get_list')
-        @list = handle_result(result, "Failed to get list") do |r|
-          r['data']['info'].find{|el| el['name'] == LIST_NAME }
+    def track_users
+      $logger.notice log('Tracking users...')
+
+      while user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7) and !user_names.empty?
+        if track_users_by_list(user_names)
+          $redis.ltrim(USERS_TRACKING_QUEUE, user_names.size, -1)
         end
+
+        sleep 5
       end
 
-      if @list.nil?
-        result = post('api/list/create', format: 'json', name: LIST_NAME, description: LIST_NAME, tag: 'echidna', access: '1')
-        @list = handle_result(result, "Failed to create list")
-      end
-
-      @list
+      $logger.notice log('Finished users tracking')
+    rescue Error => e
+      $logger.err log("Aborted users tracking: #{e.message}")
     end
 
-    def add_user_to_list username
-      result = post('api/list/add_to_list', format: 'json',  names: username, listid: user_list['listid'])
-      handle_result(result, 'Failed to add user to list')
+    def tracking_list_id
+      @tracking_list_id ||=
+        begin
+          result = post('api/list/get_list')
+
+          if result['ret'].to_i.zero?
+            list = result['data']['info'].find {|list| list['name'] == USERS_TRACKING_LIST }
+            list = create_list(USERS_TRACKING_LIST) unless list
+
+          elsif result['ret'].to_i == 1 && result['errcode'].to_i == 44
+            # Tencent API treat the case agent don't have any list yet as
+            # error, and return this error code combination.
+            list = create_list(USERS_TRACKING_LIST)
+          else
+            raise Error, "Failed to get list: #{result['msg']}"
+          end
+
+          list['listid']
+        end
+    end
+
+    private
+
+    def create_list(list_name)
+      result = post('api/list/create', name: list_name, access: 1)
+      if result['ret'].to_i.zero?
+        $logger.notice log(%{Created list "#{list_name}"})
+        result['data']
+      else
+        raise Error, %{Failed to create list "#{list_name}": #{result['msg']}}
+      end
+    end
+
+    def track_users_by_list(user_names)
+      result = post('api/list/add_to_list', names: user_names.join(','), listid: tracking_list_id)
+      if result['ret'].to_i.zero?
+        $logger.notice log(%{Tracked users "#{user_names.join(',')}" by list})
+        true
+      else
+        $logger.err log(%{Failed to track users "#{user_names.join(',')}" by list: #{result['msg']}})
+        false
+      end
     end
 
     def handle_result(result, errmsg, &block)

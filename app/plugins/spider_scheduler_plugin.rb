@@ -4,6 +4,7 @@ class SpiderSchedulerPlugin
 
   def run
     schedule_gather_users
+    schedule_track_users
     # schedule_gather_tweets
   end
 
@@ -42,5 +43,21 @@ class SpiderSchedulerPlugin
 
     EM::Synchrony.add_periodic_timer(10.minutes, &gather_users_operation)
     gather_users_operation.call
+  end
+
+  def schedule_track_users
+    track_users_operation = -> {
+      TencentAgent.all.each do |agent|
+
+        operation = -> {
+          agent.track_users
+        }
+
+        EM::Synchrony.defer(operation)
+      end
+    }
+
+    EM::Synchrony.add_periodic_timer(5.minutes, &track_users_operation)
+    track_users_operation.call
   end
 end
