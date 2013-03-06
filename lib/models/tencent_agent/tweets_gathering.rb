@@ -3,7 +3,6 @@ require_relative 'users_gathering'
 class TencentAgent
   module TweetsGathering
     extend ActiveSupport::Concern
-    include UsersGathering
     include UsersTracking
 
     def gather_tweets
@@ -50,22 +49,18 @@ class TencentAgent
 
     def publish_tweets(tweets)
       tweets.each do |tweet|
-        if try_publish_user(tweet['name'])
-          $logger.notice log("Publishing tweet #{tweet['id']}")
-          $redis.rpush "streaming/messages", {
-            type: "add_tweet",
-            body: {
-              user_id: tweet['name'],
-              user_type: :tencent,
-              text: tweet['text'],
-              id: tweet['id'],
-              url: "http://t.qq.com/p/t/#{tweet['id']}",
-            timestamp: tweet['timestamp']
-            }
-          }.to_json
-        else
-          $logger.warning log(%{Skip tweet "#{tweet['id']}" due to publish it's user skipped/failed})
-        end
+        $logger.notice log("Publishing tweet #{tweet['id']}")
+        $redis.rpush "streaming/messages", {
+          type: "add_tweet",
+          body: {
+            user_id: tweet['name'],
+            user_type: :tencent,
+            text: tweet['text'],
+            id: tweet['id'],
+            url: "http://t.qq.com/p/t/#{tweet['id']}",
+          timestamp: tweet['timestamp']
+          }
+        }.to_json
       end
 
       update_attribute(:latest_tweet_timestamp, tweets.first['timestamp'])
