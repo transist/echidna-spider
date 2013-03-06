@@ -47,6 +47,12 @@ The app key and secret of Tencent Weibo app created from https://open.t.qq.com/
 
 The hostname running spider, which must be accessable from your browser. The Tencent Weibo OAuth process will construct `redirect_uri` with this hostname.
 
+    ECHIDNA_SPIDER_DEBUG
+
+Set it to true to help debugging spider:
+
+    * Tweets gathering will ignore timestamp of latest known tweet, and always start from 2 days ago.
+
 Check header part of `bin/spider` for other configurable environment variables.
 
 ### Add a Tencent Weibo agent
