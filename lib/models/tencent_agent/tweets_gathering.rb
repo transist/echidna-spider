@@ -48,6 +48,7 @@ class TencentAgent
     end
 
     def publish_tweets(tweets)
+      return if tweets.blank?
       tweets.each do |tweet|
         $logger.notice log("Publishing tweet #{tweet['id']}")
         $redis.lpush "streaming/messages", {
