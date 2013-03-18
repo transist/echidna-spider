@@ -51,7 +51,7 @@ class TencentAgent
 
       $redis.sadd(SAMPLE_USER_KEYWORDS % user_name, keyword)
 
-      $redis.lpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
+      $redis.rpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
     end
 
     def try_publish_user(user_name, keyword = nil)
