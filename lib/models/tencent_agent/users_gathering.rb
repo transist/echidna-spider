@@ -36,6 +36,8 @@ class TencentAgent
           $logger.err log("Failed to gather user: #{result['msg']}")
           break
         end
+
+        sleep 5
       end
       $logger.notice log('Finished users gathering')
 

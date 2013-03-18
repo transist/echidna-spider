@@ -34,6 +34,8 @@ class TencentAgent
 
           break
         end
+
+        sleep 5
       end
       $logger.notice log('Finished tweets gathering')
     rescue Error => e
