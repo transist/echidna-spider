@@ -23,7 +23,7 @@ class TencentAgent
           end
 
           publish_tweets(result['data']['info'])
-          break unless result['data']['hasnext'].zero?
+          break if result['data']['hasnext'].zero?
 
         elsif result['ret'].to_i == 5 && result['errcode'].to_i == 5
           $logger.notice log('No new tweets')
