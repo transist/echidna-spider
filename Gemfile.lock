@@ -12,9 +12,10 @@ GIT
 
 GIT
   remote: git://github.com/rainux/tencent-weibo
-  revision: cb13f87e5b7380a362d5fa44078edc3f3c1b3553
+  revision: 5549a8d09f08dfa16d059db844457721655326b3
   specs:
     tencent-weibo (0.0.1)
+      multi_json (~> 1.6)
       oauth2 (~> 0.9.1)
 
 PATH
@@ -76,11 +77,11 @@ GEM
     http_parser.rb (0.5.3)
     httpauth (0.2.0)
     i18n (0.6.4)
-    jwt (0.1.5)
-      multi_json (>= 1.0)
+    jwt (0.1.8)
+      multi_json (>= 1.5)
     log4r (1.1.10)
     method_source (0.8.1)
-    multi_json (1.6.1)
+    multi_json (1.7.1)
     multi_xml (0.5.3)
     multipart-post (1.2.0)
     pry (0.9.12)
