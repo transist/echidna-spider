@@ -43,6 +43,8 @@ class TencentAgent
 
     rescue Error => e
       $logger.err log("Aborted users gathering: #{e.message}")
+    rescue => e
+      $logger.err log(%{Unexpect error for keyword "%s": %s\n%s} % [keyword, e.inspect, e.backtrace.join("\n")])
     end
 
     private

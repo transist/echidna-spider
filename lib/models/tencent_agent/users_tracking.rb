@@ -20,6 +20,8 @@ class TencentAgent
       $logger.notice log('Finished users tracking')
     rescue Error => e
       $logger.err log("Aborted users tracking: #{e.message}")
+    rescue => e
+      $logger.err log(%{Unexpect error: %s\n%s} % [e.inspect, e.backtrace.join("\n")])
     end
 
     def tracking_list_id

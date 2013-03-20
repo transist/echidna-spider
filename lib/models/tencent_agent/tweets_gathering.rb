@@ -40,6 +40,8 @@ class TencentAgent
       $logger.notice log('Finished tweets gathering')
     rescue Error => e
       $logger.err log("Aborted tweets gathering: #{e.message}")
+    rescue => e
+      $logger.err log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
     end
 
     private
