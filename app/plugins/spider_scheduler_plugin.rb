@@ -3,6 +3,7 @@ class SpiderSchedulerPlugin
   end
 
   def run
+    schedule_refresh_access_token
     schedule_gather_users
     schedule_track_users
     schedule_gather_tweets
@@ -59,5 +60,20 @@ class SpiderSchedulerPlugin
 
     EM::Synchrony.add_periodic_timer(5.minutes, &track_users_operation)
     track_users_operation.call
+  end
+
+  def schedule_refresh_access_token
+    refresh_access_token_operation = -> {
+      TencentAgent.all.each do |agent|
+
+        operation = -> {
+          agent.refresh_access_token
+        }
+
+        EM::Synchrony.defer(operation)
+      end
+    }
+    EM::Synchrony.add_periodic_timer(1.day, &refresh_access_token_operation)
+    refresh_access_token_operation.call
   end
 end
