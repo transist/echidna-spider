@@ -23,15 +23,19 @@ class TencentAgent
 
     module ClassMethods
       def schedule_reset_api_calls_count
+        return if @api_calls_count_reset_scheduled
+
         seconds_before_next_reset = (1.hour.from_now.beginning_of_hour - Time.now).ceil
 
         EM::Synchrony.add_periodic_timer(seconds_before_next_reset) do
           TencentAgent.reset_api_calls_count
         end
+        @api_calls_count_reset_scheduled = true
       end
 
       def reset_api_calls_count
         $redis.set(API_CALLS_COUNT_KEY, 0)
+        @api_calls_count_reset_scheduled = false
         $logger.notice 'Reset Tencent Weibo API calls count'
       end
 
