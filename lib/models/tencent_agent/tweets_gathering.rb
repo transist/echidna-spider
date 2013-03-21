@@ -53,8 +53,9 @@ class TencentAgent
 
     def publish_tweets(tweets)
       return if tweets.blank?
+
+      $logger.notice log("Publishing tweets since #{latest_tweet_timestamp}")
       tweets.each do |tweet|
-        $logger.notice log("Publishing tweet #{tweet['id']}")
         $redis.lpush "streaming/messages", {
           type: "add_tweet",
           body: {
