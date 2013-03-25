@@ -13,7 +13,6 @@ class TencentAgent
 
     def gather_users
       $redis.sunionstore(KEYWORDS_QUEUE, :words) unless $redis.exists(KEYWORDS_QUEUE)
-      # TODO: warn or monitor when KEYWORDS_QUEUE exist but has no more words...
       $logger.notice log('Gathering users...')
 
       while keyword = $redis.srandmember(KEYWORDS_QUEUE)
@@ -40,6 +39,11 @@ class TencentAgent
 
         sleep 5
       end
+
+      if $redis.scard(KEYWORDS_QUEUE).zero?
+        $logger.warning log('No more keywords in queue for users gathering')
+      end
+
       $logger.notice log('Finished users gathering')
 
     rescue Error => e
