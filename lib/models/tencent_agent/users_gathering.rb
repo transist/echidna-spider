@@ -20,8 +20,6 @@ class TencentAgent
         result = cached_get('api/search/t', keyword: keyword, pagesize: 30)
 
         if result['ret'].to_i.zero?
-          # TODO: should probably move at the end of this block
-          $redis.srem(KEYWORDS_QUEUE, keyword)
 
           unless result['data']
             $logger.notice log(%{No results for keyword "#{keyword}"})
@@ -30,7 +28,11 @@ class TencentAgent
 
           user_name = result['data']['info'].first['name']
 
-          try_publish_user(user_name, keyword)
+          if sample_user(user_name, keyword)
+            record_user_sample(user_name, keyword)
+            $redis.rpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
+            $redis.srem(KEYWORDS_QUEUE, keyword)
+          end
 
         else
           $logger.err log("Failed to gather user: #{result['msg']}")
@@ -59,16 +61,12 @@ class TencentAgent
       $redis.zadd(SAMPLE_USERS, existing_score + 1, user_name)
 
       $redis.sadd(SAMPLE_USER_KEYWORDS % user_name, keyword)
-
-      $redis.rpush(UsersTracking::USERS_TRACKING_QUEUE, user_name)
     end
 
-    def try_publish_user(user_name, keyword = nil)
+    def sample_user(user_name, keyword = nil)
       result = cached_get('api/user/other_info', name: user_name)
 
       if result['ret'].to_i.zero? && result['data']
-        # TODO: move this after the whole block to make sure we only track successfully published users
-        record_user_sample(user_name, keyword) if keyword
         user = UserDecorator.decorate(result['data'])
 
         group_ids = get_group_ids(user)
