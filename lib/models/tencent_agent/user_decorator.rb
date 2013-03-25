@@ -1,28 +1,28 @@
 class TencentAgent
-  module UserFilter
+  module UserDecorator
     module_function
 
     # 北京 天津 上海 重庆
     SPECIAL_CITIES = [11, 12, 31, 50]
 
-    def filter(user)
-      filter_by_city(user)
-      filter_by_gender(user)
+    def decorate(user)
+      decorate_city(user)
+      decorate_gender(user)
     end
 
     private
     module_function
 
-    def filter_by_city(user)
+    def decorate_city(user)
       case user['province_code'].to_i
       when 0
-        # Do nothing to not filter out user
+        # Do nothing
       when *SPECIAL_CITIES
         user['city'] = get_location_by_key(user['province_code'])
       else
         case user['city_code'].to_i
         when 0
-          # Do nothing to not filter out user
+          # Do nothing
         else
           key = user['province_code'].to_s + ':' + user['city_code']
           user['city'] = get_location_by_key(key)
@@ -31,7 +31,7 @@ class TencentAgent
       user
     end
 
-    def filter_by_gender(user)
+    def decorate_gender(user)
       case user['sex']
       when 0
         user['gender'] = 'both'

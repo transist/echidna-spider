@@ -65,8 +65,7 @@ class TencentAgent
       if result['ret'].to_i.zero? && result['data']
         # TODO: move this after the whole block to make sure we only track successfully published users
         record_user_sample(user_name, keyword) if keyword
-        # TODO: rename as this is not actually filtering
-        user = UserFilter.filter(result['data'])
+        user = UserDecorator.decorate(result['data'])
 
         group_ids = get_group_ids(user)
 
