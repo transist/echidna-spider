@@ -12,7 +12,7 @@ class TencentAgent
         @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
       end
 
-      $logger.notice log('Gathering tweets...')
+      $logger.notice log("Gathering tweets since #{Time.at(latest_tweet_timestamp.to_i)}...")
       loop do
         result = gather_tweets_since_latest_known_tweet
 
@@ -54,7 +54,7 @@ class TencentAgent
     def publish_tweets(tweets)
       return if tweets.blank?
 
-      $logger.notice log("Publishing tweets since #{latest_tweet_timestamp}")
+      $logger.notice log("Publishing tweets since #{Time.at(latest_tweet_timestamp.to_i)}")
       tweets.each do |tweet|
         $redis.lpush "streaming/messages", {
           type: "add_tweet",
