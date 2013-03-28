@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: git://github.com/rainux/tencent-weibo
-  revision: 5549a8d09f08dfa16d059db844457721655326b3
+  revision: d74842463ce273f04ceaeca737e364e55a821718
   specs:
     tencent-weibo (0.0.1)
       multi_json (~> 1.6)
@@ -49,7 +49,7 @@ GEM
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.5.3)
     eventmachine (1.0.1)
-    faraday (0.8.6)
+    faraday (0.8.7)
       multipart-post (~> 1.1)
     goliath (1.0.1)
       async-rack
@@ -81,7 +81,7 @@ GEM
       multi_json (>= 1.5)
     log4r (1.1.10)
     method_source (0.8.1)
-    multi_json (1.7.1)
+    multi_json (1.7.2)
     multi_xml (0.5.3)
     multipart-post (1.2.0)
     pry (0.9.12)
