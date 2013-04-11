@@ -13,7 +13,7 @@ class SpiderSchedulerPlugin
   private
 
   def schedule_gather_tweets
-    @scheduler.every '30s', first_in: '0s' do
+    @scheduler.every '30s', first_in: '0s', mutex: :gather_tweets do
       TencentAgent.all.each do |agent|
         agent.gather_tweets
       end
@@ -21,7 +21,7 @@ class SpiderSchedulerPlugin
   end
 
   def schedule_gather_users
-    @scheduler.every '10m', first_in: '0s' do
+    @scheduler.every '10m', first_in: '0s', mutex: :gather_users do
       TencentAgent.all.each do |agent|
         agent.gather_users
       end
@@ -29,7 +29,7 @@ class SpiderSchedulerPlugin
   end
 
   def schedule_track_users
-    @scheduler.every '5m', first_in: '0s' do
+    @scheduler.every '5m', first_in: '0s', mutex: :track_users do
       TencentAgent.all.each do |agent|
         agent.track_users
       end
@@ -37,7 +37,8 @@ class SpiderSchedulerPlugin
   end
 
   def schedule_refresh_access_token
-    @scheduler.every '1d', first_in: '0s' do
+    @scheduler.every '1d', first_in: '0s', mutex:
+      [:gather_users, :track_users, :gather_tweets] do
       TencentAgent.all.each do |agent|
         agent.refresh_access_token
       end

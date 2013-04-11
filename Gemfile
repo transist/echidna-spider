@@ -7,7 +7,7 @@ gem 'yajl-ruby', require: 'yajl'
 gem 'activesupport', require: 'active_support/all'
 gem 'oauth2', git: 'git://github.com/rainux/oauth2'
 gem 'tencent-weibo', git: 'git://github.com/rainux/tencent-weibo'
-gem 'rufus-scheduler'
+gem 'rufus-scheduler', git: 'git://github.com/rainux/rufus-scheduler'
 
 gem 'echidna-env', path: 'echidna-env', require: 'echidna/all'
 
