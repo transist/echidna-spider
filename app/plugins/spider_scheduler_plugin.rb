@@ -1,5 +1,6 @@
 class SpiderSchedulerPlugin
   def initialize(port, config, status, logger)
+    @scheduler = Rufus::Scheduler.start_new
   end
 
   def run
@@ -12,68 +13,34 @@ class SpiderSchedulerPlugin
   private
 
   def schedule_gather_tweets
-    gather_tweets_operation = -> {
-      # Agents will do their work concurrently
+    @scheduler.every '30s', first_in: '0s' do
       TencentAgent.all.each do |agent|
-
-        operation = -> {
-          agent.gather_tweets
-        }
-
-        EM::Synchrony.defer(operation)
+        agent.gather_tweets
       end
-    }
-
-    EM::Synchrony.add_periodic_timer(30, &gather_tweets_operation)
-
-    # Run gather_tweets_operation immediately for after boot
-    gather_tweets_operation.call
+    end
   end
 
   def schedule_gather_users
-    gather_users_operation = -> {
+    @scheduler.every '10m', first_in: '0s' do
       TencentAgent.all.each do |agent|
-
-        operation = -> {
-          agent.gather_users
-        }
-
-        EM::Synchrony.defer(operation)
+        agent.gather_users
       end
-    }
-
-    EM::Synchrony.add_periodic_timer(10.minutes, &gather_users_operation)
-    gather_users_operation.call
+    end
   end
 
   def schedule_track_users
-    track_users_operation = -> {
+    @scheduler.every '5m', first_in: '0s' do
       TencentAgent.all.each do |agent|
-
-        operation = -> {
-          agent.track_users
-        }
-
-        EM::Synchrony.defer(operation)
+        agent.track_users
       end
-    }
-
-    EM::Synchrony.add_periodic_timer(5.minutes, &track_users_operation)
-    track_users_operation.call
+    end
   end
 
   def schedule_refresh_access_token
-    refresh_access_token_operation = -> {
+    @scheduler.every '1d', first_in: '0s' do
       TencentAgent.all.each do |agent|
-
-        operation = -> {
-          agent.refresh_access_token
-        }
-
-        EM::Synchrony.defer(operation)
+        agent.refresh_access_token
       end
-    }
-    EM::Synchrony.add_periodic_timer(1.day, &refresh_access_token_operation)
-    refresh_access_token_operation.call
+    end
   end
 end
