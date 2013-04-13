@@ -6,15 +6,30 @@ class TencentAgent
     include UsersTracking
 
     def gather_tweets
-      if ENV['ECHIDNA_SPIDER_DEBUG'] == 'true'
-        @attributes[:latest_tweet_timestamp] = 2.days.ago.to_i
-      else
-        @attributes[:latest_tweet_timestamp] ||= 2.days.ago.to_i
+      users_tracking_lists.each do |list_id, latest_tweet_timestamp|
+        gather_tweets_from_list(list_id, latest_tweet_timestamp)
       end
 
-      $logger.notice log("Gathering tweets since #{Time.at(latest_tweet_timestamp.to_i)}...")
+      $logger.notice log('Finished tweets gathering')
+    rescue Error => e
+      $logger.err log("Aborted tweets gathering: #{e.message}")
+    rescue => e
+      $logger.err log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
+    end
+
+    private
+
+    def gather_tweets_from_list(list_id, latest_tweet_timestamp)
+      if ENV['ECHIDNA_SPIDER_DEBUG'] == 'true'
+        latest_tweet_timestamp = 2.days.ago.to_i
+      else
+        latest_tweet_timestamp = latest_tweet_timestamp.blank? ? 2.days.ago.to_i : latest_tweet_timestamp
+      end
+
+      $logger.notice log("Gathering tweets from list #{list_id} since #{Time.at(latest_tweet_timestamp.to_i)}...")
+
       loop do
-        result = gather_tweets_since_latest_known_tweet
+        result = gather_tweets_since_latest_known_tweet(list_id, latest_tweet_timestamp)
 
         if result['ret'].to_i.zero?
           unless result['data']
@@ -22,7 +37,7 @@ class TencentAgent
             break
           end
 
-          publish_tweets(result['data']['info'])
+          latest_tweet_timestamp = publish_tweets(result['data']['info'], list_id, latest_tweet_timestamp)
           break if result['data']['hasnext'].zero?
 
         elsif result['ret'].to_i == 5 && result['errcode'].to_i == 5
@@ -37,22 +52,15 @@ class TencentAgent
 
         sleep 5
       end
-      $logger.notice log('Finished tweets gathering')
-    rescue Error => e
-      $logger.err log("Aborted tweets gathering: #{e.message}")
-    rescue => e
-      $logger.err log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
     end
 
-    private
-
-    def gather_tweets_since_latest_known_tweet
+    def gather_tweets_since_latest_known_tweet(list_id, latest_tweet_timestamp)
       # 70 is the max allowed value for reqnum
-      get('api/list/timeline', listid: tracking_list_id, reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp)
+      get('api/list/timeline', listid: list_id, reqnum: 70, pageflag: 2, pagetime: latest_tweet_timestamp)
     end
 
-    def publish_tweets(tweets)
-      return if tweets.blank?
+    def publish_tweets(tweets, list_id, latest_tweet_timestamp)
+      return latest_tweet_timestamp if tweets.blank?
 
       $logger.notice log("Publishing tweets since #{Time.at(latest_tweet_timestamp.to_i)}")
       tweets.each do |tweet|
@@ -69,7 +77,8 @@ class TencentAgent
         }.to_json
       end
 
-      update_attribute(:latest_tweet_timestamp, tweets.first['timestamp'])
+      $redis.hset users_tracking_lists_key, list_id, tweets.first['timestamp']
+      tweets.first['timestamp']
     end
   end
 end

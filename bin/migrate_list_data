@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'bundler'
+Bundler.require(:default, ENV['ECHIDNA_ENV'] || "development")
+
+ENV['ECHIDNA_SPIDER_TENCENT_APP_KEY']       ||= '801317572'
+ENV['ECHIDNA_SPIDER_TENCENT_APP_SECRET']    ||= '2a7d8fc10f48f5dbacffed0cee5dc49e'
+
+# This script intent to fix the data of existing Weibo list.
+
+TencentAgent.all.each do |agent|
+  puts "Migrating list data for agent #{agent.name}"
+  result = agent.post('api/list/get_list')
+
+  unless result['ret'].to_i.zero?
+    puts "Error getting list: #{result['msg']}"
+    next
+  end
+
+  list = result['data']['info'].find do |list|
+    list['name'] == 'TrackingUsers'
+  end
+
+  unless list
+    puts "Existing list not found"
+    next
+  end
+
+  name = agent.send(:next_users_tracking_list_name)
+  agent.post('api/list/edit', listid: list['listid'], name: name)
+
+  if result['ret'].to_i.zero?
+    agent.send :add_list_to_users_tracking_lists, list
+    puts 'Successfully migrated list data'
+  else
+    puts "Error renaming list: #{result['msg']}"
+  end
+end
