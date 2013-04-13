@@ -7,7 +7,7 @@ class TencentAgent
     USERS_TRACKING_QUEUE = 'spider:tencent:users_tracking_queue'
 
     def track_users
-      $logger.notice log('Tracking users...')
+      $logger.info log('Tracking users...')
 
       # Tencent Weibo's add_to_list API accept at most 8 user names per request.
       while user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7) and !user_names.empty?
@@ -18,11 +18,11 @@ class TencentAgent
         sleep 5
       end
 
-      $logger.notice log('Finished users tracking')
+      $logger.info log('Finished users tracking')
     rescue Error => e
-      $logger.err log("Aborted users tracking: #{e.message}")
+      $logger.error log("Aborted users tracking: #{e.message}")
     rescue => e
-      $logger.err log(%{Unexpect error: %s\n%s} % [e.inspect, e.backtrace.join("\n")])
+      $logger.error log(%{Unexpect error: %s\n%s} % [e.inspect, e.backtrace.join("\n")])
     end
 
     # A hash which key is the created list id, value is the latest_tweet_timestamp.
@@ -55,7 +55,7 @@ class TencentAgent
       result = post('api/list/create', name: list_name, access: 1)
       if result['ret'].to_i.zero?
         add_list_to_users_tracking_lists(result['data'])
-        $logger.notice log(%{Created list "#{list_name}"})
+        $logger.info log(%{Created list "#{list_name}"})
         result['data']
       else
         # TODO Monitor the failure message to discover the limitation of how many
@@ -72,7 +72,7 @@ class TencentAgent
     def track_users_by_list(user_names)
       result = post('api/list/add_to_list', names: user_names.join(','), listid: latest_users_tracking_list_id)
       if result['ret'].to_i.zero?
-        $logger.notice log(%{Tracked users "#{user_names.join(',')}" by list})
+        $logger.info log(%{Tracked users "#{user_names.join(',')}" by list})
         true
 
       else
@@ -81,7 +81,7 @@ class TencentAgent
           create_list(next_users_tracking_list_name)
         end
 
-        $logger.err log(%{Failed to track users "#{user_names.join(',')}" by list: #{result['msg']}})
+        $logger.error log(%{Failed to track users "#{user_names.join(',')}" by list: #{result['msg']}})
         false
       end
     end

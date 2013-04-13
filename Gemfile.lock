@@ -32,6 +32,7 @@ PATH
       hiredis
       redis
       redis-namespace
+      syslog-ml-logger
 
 GEM
   remote: https://rubygems.org/
@@ -122,6 +123,7 @@ GEM
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.13.0)
     slop (3.4.3)
+    syslog-ml-logger (1.8.4)
     tzinfo (0.3.37)
     virtus (0.5.4)
       backports (~> 2.6.1)

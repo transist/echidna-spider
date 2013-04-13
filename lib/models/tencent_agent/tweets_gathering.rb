@@ -10,11 +10,11 @@ class TencentAgent
         gather_tweets_from_list(list_id, latest_tweet_timestamp)
       end
 
-      $logger.notice log('Finished tweets gathering')
+      $logger.info log('Finished tweets gathering')
     rescue Error => e
-      $logger.err log("Aborted tweets gathering: #{e.message}")
+      $logger.error log("Aborted tweets gathering: #{e.message}")
     rescue => e
-      $logger.err log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
+      $logger.error log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
     end
 
     private
@@ -26,14 +26,14 @@ class TencentAgent
         latest_tweet_timestamp = latest_tweet_timestamp.blank? ? 2.days.ago.to_i : latest_tweet_timestamp
       end
 
-      $logger.notice log("Gathering tweets from list #{list_id} since #{Time.at(latest_tweet_timestamp.to_i)}...")
+      $logger.info log("Gathering tweets from list #{list_id} since #{Time.at(latest_tweet_timestamp.to_i)}...")
 
       loop do
         result = gather_tweets_since_latest_known_tweet(list_id, latest_tweet_timestamp)
 
         if result['ret'].to_i.zero?
           unless result['data']
-            $logger.notice log('No new tweets (when ret code is zero)')
+            $logger.info log('No new tweets (when ret code is zero)')
             break
           end
 
@@ -41,11 +41,11 @@ class TencentAgent
           break if result['data']['hasnext'].zero?
 
         elsif result['ret'].to_i == 5 && result['errcode'].to_i == 5
-          $logger.notice log('No new tweets')
+          $logger.info log('No new tweets')
           break
 
         else
-          $logger.err log("Failed to gather tweets: #{result['msg']}")
+          $logger.error log("Failed to gather tweets: #{result['msg']}")
 
           break
         end
@@ -62,7 +62,7 @@ class TencentAgent
     def publish_tweets(tweets, list_id, latest_tweet_timestamp)
       return latest_tweet_timestamp if tweets.blank?
 
-      $logger.notice log("Publishing tweets since #{Time.at(latest_tweet_timestamp.to_i)}")
+      $logger.info log("Publishing tweets since #{Time.at(latest_tweet_timestamp.to_i)}")
       tweets.each do |tweet|
         $redis.lpush "streaming/messages", {
           type: "add_tweet",

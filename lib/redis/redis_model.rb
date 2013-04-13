@@ -92,7 +92,7 @@ module RedisModel
       @connection ||= begin
                         connection = Redis::Namespace.new(ENV['ECHIDNA_REDIS_NAMESPACE'], redis: SymbolizedRedis.new(host: ENV['ECHIDNA_REDIS_HOST'], port: ENV['ECHIDNA_REDIS_PORT'], driver: :hiredis))
 
-                        $logger.notice("RedisModel connect to redis: #{ENV['ECHIDNA_REDIS_HOST']}:#{ENV['ECHIDNA_REDIS_PORT']}/#{ENV['ECHIDNA_REDIS_NAMESPACE']}")
+                        $logger.info("RedisModel connect to redis: #{ENV['ECHIDNA_REDIS_HOST']}:#{ENV['ECHIDNA_REDIS_PORT']}/#{ENV['ECHIDNA_REDIS_NAMESPACE']}")
                         connection
                       end
     end

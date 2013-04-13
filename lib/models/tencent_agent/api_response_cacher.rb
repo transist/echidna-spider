@@ -7,11 +7,11 @@ class TencentAgent
       cache_path = cache_path(cache_key)
 
       if cache_exists?(cache_path)
-        $logger.notice log("Cache hit: #{cache_key}")
+        $logger.info log("Cache hit: #{cache_key}")
         load_cache(cache_path)
 
       else
-        $logger.notice log("Cache miss: #{cache_key}")
+        $logger.info log("Cache miss: #{cache_key}")
         store_cache(cache_path, get(path, params, &block))
       end
     end

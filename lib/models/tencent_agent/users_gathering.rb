@@ -13,16 +13,16 @@ class TencentAgent
 
     def gather_users
       $redis.sunionstore(KEYWORDS_QUEUE, :words) unless $redis.exists(KEYWORDS_QUEUE)
-      $logger.notice log('Gathering users...')
+      $logger.info log('Gathering users...')
 
       while keyword = $redis.srandmember(KEYWORDS_QUEUE)
-        $logger.notice log(%{Gathering first user from tweets of keyword "#{keyword}"...})
+        $logger.info log(%{Gathering first user from tweets of keyword "#{keyword}"...})
         result = cached_get('api/search/t', keyword: keyword, pagesize: 30)
 
         if result['ret'].to_i.zero?
 
           unless result['data']
-            $logger.notice log(%{No results for keyword "#{keyword}"})
+            $logger.info log(%{No results for keyword "#{keyword}"})
             next
           end
 
@@ -35,7 +35,7 @@ class TencentAgent
           end
 
         else
-          $logger.err log("Failed to gather user: #{result['msg']}")
+          $logger.error log("Failed to gather user: #{result['msg']}")
           break
         end
 
@@ -43,15 +43,15 @@ class TencentAgent
       end
 
       if $redis.scard(KEYWORDS_QUEUE).zero?
-        $logger.warning log('No more keywords in queue for users gathering')
+        $logger.warn log('No more keywords in queue for users gathering')
       end
 
-      $logger.notice log('Finished users gathering')
+      $logger.info log('Finished users gathering')
 
     rescue Error => e
-      $logger.err log("Aborted users gathering: #{e.message}")
+      $logger.error log("Aborted users gathering: #{e.message}")
     rescue => e
-      $logger.err log(%{Unexpect error for keyword "%s": %s\n%s} % [keyword, e.inspect, e.backtrace.join("\n")])
+      $logger.error log(%{Unexpect error for keyword "%s": %s\n%s} % [keyword, e.inspect, e.backtrace.join("\n")])
     end
 
     private
@@ -80,13 +80,13 @@ class TencentAgent
         end
 
       else
-        $logger.err log(%{Failed to gather profile of user "#{user_name}"})
+        $logger.error log(%{Failed to gather profile of user "#{user_name}"})
       end
       false
     end
 
     def publish_user(user)
-      $logger.notice log(%{Publishing user "#{user['name']}"})
+      $logger.info log(%{Publishing user "#{user['name']}"})
       $redis.lpush 'streaming/messages', {
         type: 'add_user',
         body: {
@@ -108,12 +108,12 @@ class TencentAgent
       )
       MultiJson.load(response.body)['ids']
     rescue
-      $logger.err log(%{Failed to get group ids for user "#{user['name']}"})
+      $logger.error log(%{Failed to get group ids for user "#{user['name']}"})
       []
     end
 
     def publish_user_to_group(user, group_id)
-      $logger.notice log(%{Publishing user "#{user['name']}" to group "#{group_id}"})
+      $logger.info log(%{Publishing user "#{user['name']}" to group "#{group_id}"})
       $redis.lpush 'streaming/messages', {
         type: 'add_user_to_group',
         body: {
