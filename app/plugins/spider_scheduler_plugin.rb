@@ -8,6 +8,7 @@ class SpiderSchedulerPlugin
     schedule_gather_users
     schedule_track_users
     schedule_gather_tweets
+    schedule_reset_api_calls_count
   end
 
   private
@@ -42,6 +43,12 @@ class SpiderSchedulerPlugin
       TencentAgent.all.each do |agent|
         agent.refresh_access_token
       end
+    end
+  end
+
+  def schedule_reset_api_calls_count
+    @scheduler.cron '0 * * * *' do
+      TencentAgent.reset_api_calls_count
     end
   end
 end
