@@ -57,9 +57,12 @@ class TencentAgent
         add_list_to_users_tracking_lists(result['data'])
         $logger.info log(%{Created list "#{list_name}"})
         result['data']
+
+      elsif result['ret'].to_i == 4 and result['errcode'].to_i == 98
+        update_attribute :full_with_lists, true
+        raise Error, 'List create limitation reached'
+
       else
-        # TODO Monitor the failure message to discover the limitation of how many
-        # lists an account can create and handle it.
         raise Error.new(%{Failed to create list "#{list_name}"}, result)
       end
     end
