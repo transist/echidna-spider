@@ -60,7 +60,7 @@ class TencentAgent
       else
         # TODO Monitor the failure message to discover the limitation of how many
         # lists an account can create and handle it.
-        raise Error, %{Failed to create list "#{list_name}": #{result['msg']}}
+        raise Error.new(%{Failed to create list "#{list_name}"}, result)
       end
     end
 
