@@ -22,7 +22,7 @@ class TencentAgent
     rescue Error => e
       $logger.error log("Aborted users tracking: #{e.message}")
     rescue => e
-      $logger.error log(%{Unexpect error: %s\n%s} % [e.inspect, e.backtrace.join("\n")])
+      log_unexpected_error(e)
     end
 
     # A hash which key is the created list id, value is the latest_tweet_timestamp.

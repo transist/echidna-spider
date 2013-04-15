@@ -14,7 +14,7 @@ class TencentAgent
     rescue Error => e
       $logger.error log("Aborted tweets gathering: #{e.message}")
     rescue => e
-      $logger.error log("Unexpect error: %s\n%s" % [e.inspect, e.backtrace.join("\n")])
+      log_unexpected_error(e)
     end
 
     private

@@ -31,7 +31,7 @@ class TencentAgent
       $logger.info log('Finished access token refreshing')
     end
   rescue => e
-    $logger.info log("Failed to refresh access token: #{e.message}")
+    log_unexpected_error(e)
   end
 
   private
@@ -46,5 +46,27 @@ class TencentAgent
 
   def log(message)
     "Tencent Weibo agent #{name}: #{message}"
+  end
+
+  # Log unexpected errors to a redis list
+  def log_unexpected_error(exception)
+    error = {
+      class: exception.class.name,
+      message: exception.message,
+      backtrace: exception.backtrace,
+      raised_at: Time.now
+    }
+    if exception.respond_to?(:response)
+      faraday_response = exception.response.response.to_hash
+      # Delete self-reference
+      faraday_response.delete(:response)
+      faraday_response[:url] = faraday_response[:url].to_s
+      faraday_response[:body] = MultiJson.load(faraday_response[:body]) rescue faraday_response[:body]
+
+      error[:response] = faraday_response
+    end
+
+    $redis.rpush :spider_errors, MultiJson.dump(error)
+    $logger.warn %{Unexpected error "#{exception.inspect}" logged to redis}
   end
 end
