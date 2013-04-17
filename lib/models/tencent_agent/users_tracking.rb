@@ -10,12 +10,22 @@ class TencentAgent
       $logger.info log('Tracking users...')
 
       # Tencent Weibo's add_to_list API accept at most 8 user names per request.
-      while user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7) and !user_names.empty?
-        if track_users_by_list(user_names)
+      loop do
+        $redis.multi do
+          user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7)
           $redis.ltrim(USERS_TRACKING_QUEUE, user_names.size, -1)
         end
 
-        sleep 5
+        if user_names.empty?
+          break
+
+        else
+          unless track_users_by_list(user_names)
+            $redis.lpush(USERS_TRACKING_QUEUE, user_names)
+          end
+
+          sleep 5
+        end
       end
 
       $logger.info log('Finished users tracking')
