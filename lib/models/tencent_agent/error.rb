@@ -6,7 +6,11 @@ class TencentAgent
     end
 
     def to_s
-      "#{super}: #{@response_body.inspect}"
+      if @response_body
+        "#{super}: #{@response_body.inspect}"
+      else
+        super
+      end
     end
   end
 end
