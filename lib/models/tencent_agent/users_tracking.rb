@@ -11,18 +11,21 @@ class TencentAgent
 
       # Tencent Weibo's add_to_list API accept at most 8 user names per request.
       loop do
-        user_names = []
+        user_names = nil
         $redis.multi do
           user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7)
           $redis.ltrim(USERS_TRACKING_QUEUE, 8, -1)
         end
 
-        if user_names.empty?
+        if user_names.value.empty?
           break
 
         else
-          unless track_users_by_list(user_names)
-            $redis.lpush(USERS_TRACKING_QUEUE, user_names)
+          begin
+            track_users_by_list(user_names.value)
+          rescue
+            $redis.lpush(USERS_TRACKING_QUEUE, user_names.value)
+            raise
           end
 
           sleep 5
@@ -87,7 +90,6 @@ class TencentAgent
       result = post('api/list/add_to_list', names: user_names.join(','), listid: latest_users_tracking_list_id)
       if result['ret'].to_i.zero?
         $logger.info log(%{Tracked users "#{user_names.join(',')}" by list})
-        true
 
       else
         # List limitation of maximized members reached
@@ -95,8 +97,7 @@ class TencentAgent
           create_list(next_users_tracking_list_name)
         end
 
-        $logger.error log(%{Failed to track users "#{user_names.join(',')}" by list: #{result['msg']}})
-        false
+        raise Error.new(%{Failed to track users "#{user_names.join(',')}" by list}, result)
       end
     end
   end
