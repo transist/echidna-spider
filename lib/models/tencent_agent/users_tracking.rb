@@ -11,6 +11,7 @@ class TencentAgent
 
       # Tencent Weibo's add_to_list API accept at most 8 user names per request.
       loop do
+        user_names = []
         $redis.multi do
           user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7)
           $redis.ltrim(USERS_TRACKING_QUEUE, 8, -1)
