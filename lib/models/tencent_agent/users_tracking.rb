@@ -13,7 +13,7 @@ class TencentAgent
       loop do
         $redis.multi do
           user_names = $redis.lrange(USERS_TRACKING_QUEUE, 0, 7)
-          $redis.ltrim(USERS_TRACKING_QUEUE, user_names.size, -1)
+          $redis.ltrim(USERS_TRACKING_QUEUE, 8, -1)
         end
 
         if user_names.empty?
