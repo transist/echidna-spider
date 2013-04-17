@@ -23,9 +23,7 @@ class SpiderSchedulerPlugin
 
   def schedule_gather_users
     @scheduler.every '10m', first_in: '0s', mutex: :gather_users do
-      TencentAgent.all.each do |agent|
-        agent.gather_users
-      end
+      TencentAgent.all.first.gather_users
     end
   end
 
